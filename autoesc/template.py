@@ -228,8 +228,7 @@ class _InterpolationNode(Node):
         self.expr = expr
 
     def execute(self, env, out):
-        value = self.expr.evaluate(env)
-        if value is not None:
+        if (value := self.expr.evaluate(env)) is not None:
             if type(value) not in (str, unicode):
                 value = str(value)
             out.write(value)
@@ -424,8 +423,7 @@ class _BlockNode(Node):
         raise NotImplementedError('abstract')  # pragma: no cover
 
     def __str__(self):
-        else_clause = self.else_clause
-        if else_clause:
+        if else_clause := self.else_clause:
             return "{{%s %s}}%s{{else}}%s{{end}}" % (
                 self.block_type(), self.expr, self.body, else_clause)
         return "{{%s %s}}%s{{end}}" % (self.block_type(), self.expr, self.body)
@@ -438,8 +436,7 @@ class _WithNode(_BlockNode):
         _BlockNode.__init__(self, loc, expr, body, else_clause)
 
     def execute(self, env, out):
-        data = self.expr.evaluate(env)
-        if data:
+        if data := self.expr.evaluate(env):
             self.body.execute(env.with_data(data), out)
         elif self.else_clause:
             self.else_clause.execute(env, out)
@@ -489,8 +486,7 @@ class _RangeNode(_BlockNode):
         _BlockNode.__init__(self, loc, expr, body, else_clause)
 
     def execute(self, env, out):
-        iterable = self.expr.evaluate(env)
-        if iterable:
+        if iterable := self.expr.evaluate(env):
             for value in iterable:
                 self.body.execute(env.with_data(value), out)
         elif self.else_clause:
@@ -627,8 +623,7 @@ def _parse_templates_into(name_to_body, loc, code, name=None):
         loc = toks.loc_at()
         children = []
         while True:
-            atom = parse_atom()
-            if atom is None:
+            if (atom := parse_atom()) is None:
                 break
             children.append(atom)
         if len(children) == 1:
@@ -637,8 +632,7 @@ def _parse_templates_into(name_to_body, loc, code, name=None):
 
     def parse_atom():
         """Parses a single full statement node."""
-        token = toks.peek()
-        if token is None:
+        if (token := toks.peek()) is None:
             return None
         loc = toks.loc_at()
         match = re.search(
@@ -751,17 +745,14 @@ def _parse_expr(loc, toks, consume_all=True):
         except inside parentheses so which are all equally high precedence.
         """
         toks.skip_ignorable()
-        token = toks.peek()
-        if token is None:
+        if (token := toks.peek()) is None:
             toks.fail('missing expression part at end of %s'
                       % (str(all_toks) or 'input'))
         loc = toks.loc_at()
-        ch0 = token[0]
-        if ch0 == '.':  # Reference
+        if (ch0 := token[0]) == '.':  # Reference
             # .Foo.Bar -> ['Foo', 'Bar'] so we can lookup data elements
             # in order.
-            parts = tuple(token[1:].split('.'))
-            if parts == ('',):
+            if (parts := tuple(token[1:].split('.'))) == ('',):
                 # . means all data, so use () because following zero key
                 # traversals leaves from data leaves us in the right place.
                 parts = ()
@@ -800,8 +791,7 @@ def _parse_expr(loc, toks, consume_all=True):
         error message.
         """
         toks.skip_ignorable()
-        token = toks.peek()
-        if token is None:
+        if (token := toks.peek()) is None:
             toks.fail('missing function name at end of input')
         if not re.search(r'\A[A-Za-z][A-Za-z0-9_]*\Z', token):
             toks.fail('expected function name but got %s' % token)
@@ -946,8 +936,7 @@ class Pipeline(object):
             """Count back from the end of the pipeline to find the element."""
             if not _is_pipe(expr):
                 return 0
-            arg_index = walk(expr.args[0])
-            if arg_index == index:
+            if (arg_index := walk(expr.args[0])) == index:
                 result[0] = expr.name
             return arg_index+1
         walk(self.expr)

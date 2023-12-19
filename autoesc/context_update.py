@@ -308,8 +308,7 @@ class _SlashTransition(_Transition):
         _Transition.__init__(self, regex)
 
     def compute_next_context(self, prior, match):
-        js_ctx = js_ctx_of(prior)
-        if js_ctx == JS_CTX_DIV_OP:
+        if (js_ctx := js_ctx_of(prior)) == JS_CTX_DIV_OP:
             return ((prior & ~(STATE_ALL | JS_CTX_ALL))
                     | STATE_JS | JS_CTX_REGEX)
         elif js_ctx == JS_CTX_REGEX:
@@ -357,10 +356,8 @@ class _URLPartTransition(_Transition):
         _Transition.__init__(self, pattern)
 
     def compute_next_context(self, prior, match):
-        url_part = url_part_of(prior)
-        if url_part == URL_PART_NONE:
-            text = match.string[:match.end()].strip()
-            if text:
+        if (url_part := url_part_of(prior)) == URL_PART_NONE:
+            if text := match.string[:match.end()].strip():
                 # There is a non-space character preceding.
                 url_part = URL_PART_PRE_QUERY
 
@@ -772,8 +769,7 @@ def process_raw_text(raw_text, context):
         # or > symbol that closes an attribute, at the end of the raw_text,
         # or -1 if no decoding needs to happen.
 
-        attr_value_end = _end_of_attr_value(raw_text, delim_type)
-        if attr_value_end == -1:
+        if (attr_value_end := _end_of_attr_value(raw_text, delim_type)) == -1:
             # Outside an attribute value.  No need to decode.
             num_consumed, context, replacement_text = _process_next_token(
                 raw_text, context)

@@ -157,8 +157,7 @@ def attr_type(attr_name):
     # Heuristic for custom HTML attributes and HTML5 data-* attributes.
     if (attr_name.find('url') & attr_name.find('uri')) >= 0:
         return content.CONTENT_KIND_URL
-    typ = _ATTR_VALUE_TYPES.get(attr_name, None)
-    if typ is not None:
+    if (typ := _ATTR_VALUE_TYPES.get(attr_name, None)) is not None:
         return typ
     if attr_name.startswith('data-'):
         return content.CONTENT_KIND_PLAIN
@@ -189,11 +188,9 @@ def _decode_html_entity(match):
     Regex replacer that expects hex digits in group 1, or
     decimal digits in group 2, or a named entity in group 3.
     """
-    group = match.group(1)
-    if group:
+    if group := match.group(1):
         return _unichr(int(group, 16))
-    group = match.group(2)
-    if group:
+    if group := match.group(2):
         return _unichr(int(group, 10))
     group = match.group(3)
     return ENTITY_NAME_TO_TEXT_.get(
