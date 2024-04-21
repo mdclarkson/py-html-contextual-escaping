@@ -8,9 +8,8 @@ from autoesc import context
 import re
 
 
-_REGEX_PRECEDER_KEYWORDS = set([
-    "break", "case", "continue", "delete", "do", "else", "finally",
-    "instanceof", "return", "throw", "try", "typeof"])
+_REGEX_PRECEDER_KEYWORDS = {"break", "case", "continue", "delete", "do", "else", "finally",
+    "instanceof", "return", "throw", "try", "typeof"}
 
 def next_js_ctx(js_tokens, ctx):
     """
